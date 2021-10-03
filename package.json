@@ -1,0 +1,27 @@
+{
+  "name": "managemyscore",
+  "version": "1.0.0",
+  "description": "Makes your psychology teacher lost her job!",
+  "main": "index.js",
+  "author": "Michael Huang",
+  "license": "MIT",
+  "dependencies": {
+    "electron-store": "^8.0.1",
+    "milligram": "^1.4.1",
+    "puppeteer": "^10.2.0",
+    "tableify": "^1.1.0"
+  },
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^15.0.0",
+    "electron-builder": "^22.11.7"
+  },
+  "build": {
+    "asar": true,
+    "asarUnpack": "node_modules/puppeteer/.local-chromium/**/*",
+    "appId": "com.ThreeIdiotsStudio.ManageMyScore",
+    "productName": "ManageMyScore"
+  }
+}

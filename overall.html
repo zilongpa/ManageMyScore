@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <link rel="stylesheet" href="milligram.css">
+      <meta charset="UTF-8">
+      <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+      <meta http-equiv="Content-Security-Policy" content="connect-src *; default-src *; script-src 'self';">
+      <meta http-equiv="X-Content-Security-Policy" content="connect-src *; default-src *; script-src 'self';">
+      <title>ManageMyScore | 总成绩</title>
+  </head>
+  <body>
+    <div class="container" id="table-container" >
+      <table><tr><th class="string">无数据</th><td class="string">等待刷新...</td></tr></table>
+      <!-- 防止JS爆炸 -->
+    </div>
+    <div class="container" id="buttons-container">
+    <div>
+      <div class="row row-center">
+        <button class="column" id="refresh-button">刷新</button>
+        <div class="column column-1"></div>
+        <button class="column button-outline" id="121">作业上传列表(没写好)</button>
+        <div class="column column-1"></div>
+        <button class="column button-outline" id="managebac-button">ManageBac</button>
+      </div>
+
+    <table><thead><tr></tr></thead></table>
+    <table><thead><tr></tr></thead></table>
+    <table><thead><tr></tr></thead></table>
+
+    <div class="row row-center">
+        <button class="column button-clear" id="config-button">设置</button>
+        <button class="column button-clear" id="reset-button">重置ManageBac界面</button>
+    </div>
+
+  </div>
+
+
+    
+ 
+  
+  </body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="milligram.css">
+        <meta charset="UTF-8">
+        <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+        <meta http-equiv="Content-Security-Policy" content="connect-src *; default-src *; script-src 'self';">
+        <meta http-equiv="X-Content-Security-Policy" content="connect-src *; default-src *; script-src 'self';">
+        <title>ManageMyScore | 设置</title>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row row-center">
+                <h4 class="column">1.使用Ctrl+R或Cmd+R刷新ManageBac页面（Shift强制）</h4>
+            </div>
+            <div class="row row-center">
+                <h4 class="column">2.有些老师使用10分制...额...自行乘以“十分之七”吧</h4>
+            </div>
+
+            <table><thead><tr></tr></thead></table>
+                
+            <div class="row row-center">
+                <h4 class="column">凭据 (邮箱):</h4>
+                <div class="column column-1"></div>
+                <input class="column" type="text" required="required" placeholder="Login" id="login-input"></input>
+            </div>
+
+            <table><thead><tr></tr></thead></table>
+            
+            <div class="row row-center">
+                <h4 class="column">密码:</h4>
+                <div class="column column-1"></div>
+                <input class="column" type="password" required="required" placeholder="Password" id="password-input"></input>
+            </div>
+
+            <table><thead><tr></tr></thead></table>
+
+            <div class="row row-center">
+                <h4 class="column">默认显示界面: </h4>
+                <div class="column column-1"></div>
+                <button class="column button-outline button-small" id="o-button">总成绩</button>
+                <div class="column column-1"></div>
+                <button class="column button-outline button-small" id="a-button">作业上传列表(没写好)</button>
+                <div class="column column-1"></div>
+                <button class="column button-outline button-small" id="m-button">ManageBac</button>
+            </div>
+            
+            <table><thead><tr></tr></thead></table>
+
+            <div class="row row-center">
+                <h4 class="column">ManageBac 地址（默认留空）:</h4>
+                <div class="column column-1"></div>
+                <input class="column" type="text" required="required" placeholder="https://huijia.managebac.cn" id="host-input"></input>
+            </div>
+
+            <table><thead><tr></tr></thead></table>
+
+            <div class="row row-center">
+            <button class="column" id="save-button">保存</button>
+            <div class="column column-1"></div>
+            <button class="column button-outline" id="exit-button">取消</button>
+            </div>
+
+            <table><thead><tr></tr></thead></table>
+
+
+<div class="row row-center"><textarea readonly=true autofocus=ture>
+//ManageMyScore Unity ".desktop" 桌面配置文件
+//既然你用了Linux，这应该对你没啥难度吧...
+
+Actions=Overall;AssignmentsList;ManageBac;Config
+
+[Desktop Action Overall]
+Name=Overall
+Exec=ManageMyScore -o
+
+
+[Desktop Action AssignmentList]
+Name=AssignmentsList
+Exec=ManageMyScore -a
+
+
+[Desktop Action ManageBac]
+Name=ManageBac
+Exec=ManageMyScore -m
+
+[Desktop Action Config]
+Name=Config
+Exec=ManageMyScore -c
+</textarea></div>
+        </div>
+    </body>
+</html>
