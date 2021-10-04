@@ -11,14 +11,20 @@ var host
 var username
 var password
 
+const { Menu, ipcMain, dialog, app, BrowserWindow } = require('electron');
+const path = require('path');
+const { autoUpdater } = require('electron-updater');
+
+var manageBacWindow; //ManageBac前台
+var close; //帮上面那个看看该不该关
+
+var overallWindow; //剩下3个也屈服了
+var assignmentsListWindow;
+var configWindow;
+
 var blockLoginFailedMessage;
-if(storage.get("host")!="" && storage.get("login")!="" && storage.get("password")!=""){
-    host=storage.get("host");
-    username=storage.get("login");
-    password=storage.get("password");
-}else{
-    createConfigWindow();
-}
+
+var windowsCounter=0
 
 var data=storage.get("data"); //作业缓存
 var subjects;
@@ -71,16 +77,19 @@ async function overall(){ //return a web table to render
             let ratio=findWeight(j,i['categories']);
             if (ratio!=null){
                 if (j['score']!=null){
+                    if (j['percentage']!=null){
                     weight=weight+ratio
                     percent=percent+ratio*j['percentage'];
                     seven=seven+ratio*j['score'];
+                    }
                 }
             }
         }
         overallTable.push({
             科目: i["name"],
-            七分制: (seven/weight).toFixed(1),
-            参考转换百分比: (seven/weight/7*100).toFixed(1)+"%"
+            MB七分制: (seven/weight).toFixed(1),
+            转百分比: (seven/weight/7*100).toFixed(1)+"%",
+            MB百分比: (percent/weight*100).toFixed(1)+"%"
         })
     }
 }
@@ -271,20 +280,6 @@ async function analyseTasks(targetPage){
 });
 }
 
-
-
-
-const { Menu, ipcMain, dialog, app, BrowserWindow, webContents } = require('electron');
-const path = require('path');
-const { autoUpdater } = require('electron-updater');
-
-var manageBacWindow; //ManageBac前台
-var close; //帮上面那个看看该不该关
-
-var overallWindow; //剩下3个也屈服了
-var assignmentsListWindow;
-var configWindow;
-
 const thumbarButtons=[
 {
     tooltip: '总成绩',
@@ -325,6 +320,7 @@ function createOverallWindow () {
     if(overallWindow!=null){
         overallWindow.show()
     }else{
+    windowsCounter=windowsCounter+1
     overallWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -337,6 +333,10 @@ function createOverallWindow () {
 }
     overallWindow.on('closed', function () {    
         overallWindow=null
+        windowsCounter=windowsCounter-1
+        if (windowsCounter==0){
+            app.quit();
+        }
     })
 }
 
@@ -344,6 +344,7 @@ function createConfigWindow() {
     if(configWindow!=null){
         configWindow.show()
     }else{
+     windowsCounter=windowsCounter+1
     configWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -356,6 +357,10 @@ function createConfigWindow() {
 }
     configWindow.on('closed', function () {
         configWindow=null
+        windowsCounter=windowsCounter-1
+        if (windowsCounter==0){
+            app.quit();
+        }
     })
 
 }
@@ -364,6 +369,7 @@ function createAssignmentsListWindow() {
     if(assignmentsListWindow!=null){
         assignmentsListWindow.show()
     }else{
+    windowsCounter=windowsCounter+1
     assignmentsListWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -376,6 +382,10 @@ function createAssignmentsListWindow() {
 
     assignmentsListWindow.on('closed', function () {
         assignmentsListWindow=null
+        windowsCounter=windowsCounter-1
+        if (windowsCounter==0){
+            app.quit();
+        }
     })
 
 }
@@ -407,7 +417,6 @@ app.whenReady().then(() => {
         show: false
     })
     manageBacWindow.setThumbarButtons(thumbarButtons);
-    manageBacWindow.loadURL(host + '/student');
     manageBacWindow.on("close", function (event) {
         if (!close){
             manageBacWindow.hide();
@@ -415,8 +424,15 @@ app.whenReady().then(() => {
         }
     });
 
-    createDefaultWindow();
-    init();
+    if(storage.get("host")!="" && storage.get("login")!="" && storage.get("password")!=""){
+        host=storage.get("host");
+        username=storage.get("login");
+        password=storage.get("password");
+        createDefaultWindow();
+        init();
+    }else{
+        createConfigWindow();
+    }
 
     const argv=process.argv[process.argv.length-1]
     if(argv=="o"){
@@ -446,6 +462,7 @@ app.whenReady().then(() => {
         if (BrowserWindow.getAllWindows().length === 1)createDefaultWindow()
     })
 
+    manageBacWindow.loadURL(host + '/student');
 })
 
 
