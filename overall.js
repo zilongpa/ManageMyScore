@@ -19,14 +19,8 @@ window.addEventListener('DOMContentLoaded', () => {
     refreshButton.innerHTML="正在初始化...";
     refreshButton.setAttribute("disabled",true);
 
-    ipcRenderer.send('askRefreshButton');
-
     refreshButton.addEventListener('click', () => {
-        refreshButton.innerHTML="刷新中...";
-        refreshButton.setAttribute("disabled",true);
         table.innerHTML=ipcRenderer.sendSync('getOverallTable');
-        refreshButton.innerHTML="刷新";
-        refreshButton.removeAttribute("disabled");
         tableContainer.innerHTML=null
         tableContainer.appendChild(table)
         document.title="ManageMyScore | 总成绩"
@@ -44,12 +38,11 @@ window.addEventListener('DOMContentLoaded', () => {
         ipcRenderer.send('resetManagebac');
     });
 
-    ipcRenderer.on('refreshButton//', (arg) => {
-        console.log(arg)
+    ipcRenderer.on('refreshButton', (event,arg) => {
         switch(arg){
             case 0:
             refreshButton.innerHTML="刷新";
-            refreshButton.setAttribute("disabled",false);
+            refreshButton.removeAttribute("disabled");
             break;
             
             case 1:
@@ -69,10 +62,4 @@ window.addEventListener('DOMContentLoaded', () => {
 
         }
     });
-
-    ipcRenderer.on('refreshButton', (arg) => {
-        refreshButton.innerHTML="刷新";
-        refreshButton.removeAttribute("disabled");
-    });
-
 });

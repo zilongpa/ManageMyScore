@@ -37,7 +37,7 @@ function findWeight(task,categories){
             }
         }
     }
-    dialog.showErrorBox("无法分析权重信息！","我不能理解为啥会这样，你是不是断网了...");
+    dialog.showErrorBox("无法分析权重信息！","我不能理解为啥会这样...");
     return null
 }
 
@@ -80,7 +80,7 @@ async function overall(){ //return a web table to render
         overallTable.push({
             科目: i["name"],
             七分制: (seven/weight).toFixed(1),
-            转换百分比: (seven/weight/7*100).toFixed(1)+"%"
+            参考转换百分比: (seven/weight/7*100).toFixed(1)+"%"
         })
     }
 }
@@ -119,7 +119,7 @@ async function run(){
                     if (fail<=3){
                     dialog.showErrorBox("未能刷新 "+subject["name"]+" 的数据！","这里暂时先空着"); //返回e貌似会有问题？
                     }else if (fail==4){
-                    dialog.showErrorBox("未能刷新3科以上的数据！","将停止返回错误..."); //返回e貌似会有问题？
+                    dialog.showErrorBox("未能刷新3科以上的数据！","将停止报告错误..."); //返回e貌似会有问题？
                     }
                 }finally{
                     tempPage.close();
@@ -146,17 +146,17 @@ async function init(){
     try{
         await login();
         await analyseSubjects();
+        globalSendMsg("refreshButton",0)
     }catch{
         if(!blockLoginFailedMessage){
             dialog.showErrorBox("登录失败或被中断","请检查登录凭据与密码！或者，等一等...")
             createConfigWindow();
-            refreshState=3
+            globalSendMsg("refreshButton",3)
         }
         blockLoginFailedMessage=false;
     }finally{
         page.close();
         console.log("DONE");
-        refreshState=0
     }
 }
 
@@ -274,13 +274,9 @@ async function analyseTasks(targetPage){
 
 
 
-
-
-
-
-
-const { Menu, ipcMain, dialog, app, BrowserWindow } = require('electron');
+const { Menu, ipcMain, dialog, app, BrowserWindow, webContents } = require('electron');
 const path = require('path');
+const { autoUpdater } = require('electron-updater');
 
 var manageBacWindow; //ManageBac前台
 var close; //帮上面那个看看该不该关
@@ -288,8 +284,6 @@ var close; //帮上面那个看看该不该关
 var overallWindow; //剩下3个也屈服了
 var assignmentsListWindow;
 var configWindow;
-
-var refreshState=1;
 
 const thumbarButtons=[
 {
@@ -299,7 +293,7 @@ const thumbarButtons=[
 }, {
     tooltip: '作业列表',
     icon: path.join(__dirname, 'icons/list-view.png'),
-    click () { createAssignmentsListWindow() }
+    //click () { createAssignmentsListWindow() }
 }, {
     tooltip: 'ManageBac',
     icon: path.join(__dirname, 'icons/earth.png'),
@@ -317,7 +311,7 @@ const dockMenu = Menu.buildFromTemplate([
     click () { createOverallWindow () }
 }, {
     label: '作业列表',
-    click () { createAssignmentsListWindow() }
+    //click () { createAssignmentsListWindow() }
 }, {
     label: 'ManageBac',
     click () { manageBacWindow.show() }
@@ -404,6 +398,9 @@ app.whenReady().then(() => {
     if (process.platform === 'darwin') {
         app.dock.setMenu(dockMenu);
     }
+
+    autoUpdater.checkForUpdatesAndNotify();
+
     manageBacWindow = new BrowserWindow({ //准备好了再创建窗口
         width: 1280,
         height: 800,
@@ -435,11 +432,13 @@ app.whenReady().then(() => {
     app.on('window-all-closed', function () {
         //因为ManageBac不会被关闭，所以这里不会有任何作用。
         if (process.platform !== 'darwin'){
+            blockLoginFailedMessage=true
             app.quit();
     }
     })
         
     app.on('before-quit', function () {
+        blockLoginFailedMessage=true
         try{browser.close()}catch{}finally{close=true}
     })
 
@@ -450,13 +449,20 @@ app.whenReady().then(() => {
 })
 
 
-
-
-
+function globalSendMsg(channel,msg){
+    if(overallWindow!=null){
+        overallWindow.webContents.send(channel,msg);
+    }
+    if(assignmentsListWindow!=null){
+        assignmentsListWindow.webContents.send(channel,msg);
+    }
+}
 
 ipcMain.on("getOverallTable",(event) => {
+    globalSendMsg("refreshButton",1);
     run().then(() => { 
         overall().then(info => {
+            globalSendMsg("refreshButton",0);
             event.returnValue = info;
         });
     });
@@ -487,24 +493,8 @@ ipcMain.on("openAssignmentsList",(event) => {
 ipcMain.on("closeConfigWindow",(event,reload) => {
    configWindow.close();
    if (reload){
-    if (overallWindow!=null){
-        (async function () {
-        await overallWindow.close();
-        await createOverallWindow();
-        });
-    }
-    if (assignmentsListWindow!=null){
-        (async function () {
-        await assignmentsListWindow.close();
-        await createAssignmentsListWindow();
-        });
-    }   
-        blockLoginFailedMessage=true;
-        host=storage.get("host");
-        username=storage.get("login");
-        password=storage.get("password");
-        browser.close();
-        init();
+       app.relaunch();
+       app.exit();
     }
 });
 
@@ -526,16 +516,3 @@ ipcMain.on("deleteCache",(event,key) => {
 ipcMain.on("resetManagebac",(event) => {
     manageBacWindow.loadURL(host + '/student');
 });
-
-ipcMain.on("askRefreshButton",(event) => {
-    let interval=setInterval(() => {
-        if (refreshState==0){
-            event.sender.send('refreshButton',0)
-            clearInterval(interval);
-        }else if (refreshState==3){
-            event.sender.send('refreshButton',3)
-            clearInterval(interval);
-        }
-      }, 100) 
-});
-
