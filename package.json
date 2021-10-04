@@ -9,15 +9,15 @@
     "electron-store": "^8.0.1",
     "milligram": "^1.4.1",
     "puppeteer": "^10.2.0",
-    "tableify": "^1.1.0"
+    "tableify": "^1.1.0",
+    "electron-updater": "^4.3.9"
   },
   "scripts": {
     "start": "electron ."
   },
   "devDependencies": {
     "electron": "^15.0.0",
-    "electron-builder": "^22.11.7",
-    "electron-updater": "^4.3.9"
+    "electron-builder": "^22.11.7"
   },
   "build": {
     "asar": true,
