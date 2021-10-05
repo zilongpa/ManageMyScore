@@ -25,6 +25,7 @@ var configWindow;
 var blockLoginFailedMessage;
 
 var windowsCounter=0
+var buttonState=2
 
 var data=storage.get("data"); //作业缓存
 var subjects;
@@ -150,6 +151,7 @@ async function run(){
 }
 
 async function init(){ 
+    globalSendMsg("refreshButton",2);
     browser = await puppeteer.launch({ executablePath: getChromiumExecPath(), headless: true });
     page = await browser.newPage();
     try{
@@ -334,7 +336,7 @@ function createOverallWindow () {
     overallWindow.on('closed', function () {    
         overallWindow=null
         windowsCounter=windowsCounter-1
-        if (windowsCounter==0){
+        if (windowsCounter==0 && process.platform !== 'darwin'){
             app.quit();
         }
     })
@@ -358,7 +360,7 @@ function createConfigWindow() {
     configWindow.on('closed', function () {
         configWindow=null
         windowsCounter=windowsCounter-1
-        if (windowsCounter==0){
+        if (windowsCounter==0 && process.platform !== 'darwin'){
             app.quit();
         }
     })
@@ -383,7 +385,7 @@ function createAssignmentsListWindow() {
     assignmentsListWindow.on('closed', function () {
         assignmentsListWindow=null
         windowsCounter=windowsCounter-1
-        if (windowsCounter==0){
+        if (windowsCounter==0 && process.platform !== 'darwin'){
             app.quit();
         }
     })
@@ -467,6 +469,9 @@ app.whenReady().then(() => {
 
 
 function globalSendMsg(channel,msg){
+    if (channel=="refreshButton"){
+        buttonState=msg
+    }
     if(overallWindow!=null){
         overallWindow.webContents.send(channel,msg);
     }
@@ -505,6 +510,10 @@ ipcMain.on("openOverall",(event) => {
 
 ipcMain.on("openAssignmentsList",(event) => {
     createAssignmentsListWindow();
+});
+
+ipcMain.on("getRefreshState",(event) => {
+    globalSendMsg("refreshButton",buttonState);
 });
 
 ipcMain.on("closeConfigWindow",(event,reload) => {

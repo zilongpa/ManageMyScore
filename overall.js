@@ -16,8 +16,7 @@ window.addEventListener('DOMContentLoaded', () => {
     tableContainer.appendChild(table)
     document.title=document.title+" (未更新)"
 
-    refreshButton.innerHTML="正在初始化...";
-    refreshButton.setAttribute("disabled",true);
+    ipcRenderer.send('getRefreshState');
 
     refreshButton.addEventListener('click', () => {
         table.innerHTML=ipcRenderer.sendSync('getOverallTable');
