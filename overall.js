@@ -9,6 +9,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const tableContainer = document.querySelector('#table-container')
     const resetButton = document.querySelector('#reset-button')
 
+    const classidButton = document.querySelector('#classid-button')
+
     var table = document.createElement('div');
 
     table.innerHTML=ipcRenderer.sendSync('getOverallTableCache');
@@ -18,7 +20,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
     ipcRenderer.send('getRefreshState');
 
+    classidButton.addEventListener('click', () => {
+        ipcRenderer.send('showClassid');
+    });
+
     refreshButton.addEventListener('click', () => {
+        console.log(ipcRenderer.sendSync('getOverallTable'))
         table.innerHTML=ipcRenderer.sendSync('getOverallTable');
         tableContainer.innerHTML=null
         tableContainer.appendChild(table)

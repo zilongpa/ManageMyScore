@@ -11,6 +11,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const mButton = document.querySelector('#m-button')
     const hostInput = document.querySelector('#host-input')
 
+    const tenMaxInput = document.querySelector('#ten-input')
+
     var launch=ipcRenderer.sendSync("getConfig","launch")
     if (launch==0){
         oButton.className="column button-small"
@@ -31,6 +33,9 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     if(ipcRenderer.sendSync("getConfig","host")!=null){
         hostInput.value=ipcRenderer.sendSync("getConfig","host");
+    }
+    if(ipcRenderer.sendSync("getConfig","ten")!=null){
+        tenMaxInput.value=ipcRenderer.sendSync("getConfig","ten").join(" ");
     }
     
 
@@ -62,7 +67,6 @@ window.addEventListener('DOMContentLoaded', () => {
         ipcRenderer.send("setConfig","launch",launch)
         if(ipcRenderer.sendSync("getConfig","host")!=hostInput.value || ipcRenderer.sendSync("getConfig","login")!=loginInput.value || ipcRenderer.sendSync("getConfig","password")!=passwordInput.value){
             ipcRenderer.send("deleteCache");
-            reload=true
         }
         ipcRenderer.send("setConfig","login",loginInput.value);
         ipcRenderer.send("setConfig","password",passwordInput.value);
@@ -71,6 +75,8 @@ window.addEventListener('DOMContentLoaded', () => {
         }else{
             ipcRenderer.send("setConfig","host",hostInput.value);
         }
+        ipcRenderer.send("setConfig","ten",(tenMaxInput.value).split(" "));
+        reload=true
         ipcRenderer.send('closeConfigWindow',reload);
     });
 

@@ -37,6 +37,7 @@ function getChromiumExecPath() {
 }
 
 function findWeight(task,categories){
+    if(categories!=null){
     for (var i of categories) {
         for (var j of task['tags']) {
             if (i['name']==j){
@@ -44,7 +45,7 @@ function findWeight(task,categories){
             }
         }
     }
-    dialog.showErrorBox("无法分析权重信息！","我不能理解为啥会这样...");
+}
     return null
 }
 
@@ -73,7 +74,8 @@ async function overall(){ //return a web table to render
         let seven=0;
         let percent=0;
         let weight=0;
-        if (i['tasks']!=null){
+        
+        if (i['tasks']!=null&&i['categories']!=null){
         for (var j of i['tasks']) {
             let ratio=findWeight(j,i['categories']);
             if (ratio!=null){
@@ -86,15 +88,35 @@ async function overall(){ //return a web table to render
                 }
             }
         }
+        var tenList=storage.get("ten")
+        var ten=false
+
+        let split=i['url'].split("/")
+        var id=split[split.length-1]
+
+        for (var k in tenList){
+            if(tenList[k]==id){
+                ten=true;
+            }
+        }
+
+        var topercent;
+        if (ten){
+            topercent=(seven/weight*10).toFixed(1)+"%"
+        }else{
+            topercent=(seven/weight/7*100).toFixed(1)+"%"
+        }
+        
         overallTable.push({
             科目: i["name"],
             MB七分制: (seven/weight).toFixed(1),
-            转百分比: (seven/weight/7*100).toFixed(1)+"%",
+            转百分比: topercent,
             MB百分比: (percent/weight*100).toFixed(1)+"%"
+            
         })
     }
-}
-    return tableify(overallTable)
+}   
+return tableify(overallTable)
 }else{   
     return tableify({无数据: "",})
 }
@@ -167,12 +189,10 @@ async function init(){
         blockLoginFailedMessage=false;
     }finally{
         page.close();
-        console.log("DONE");
     }
 }
 
 async function login(){
-    
     if (host + '/student'!=page.url()){
         await page.goto(host + '/student');
         if (host + '/student'!=page.url()){
@@ -418,6 +438,7 @@ app.whenReady().then(() => {
         height: 800,
         show: false
     })
+    
     manageBacWindow.setThumbarButtons(thumbarButtons);
     manageBacWindow.on("close", function (event) {
         if (!close){
@@ -542,3 +563,13 @@ ipcMain.on("deleteCache",(event,key) => {
 ipcMain.on("resetManagebac",(event) => {
     manageBacWindow.loadURL(host + '/student');
 });
+
+ipcMain.on("showClassid",(event) => {
+    var info=[];
+    for(var i of data){
+        let split=i['url'].split("/")
+        info.push(i['name']+"\n"+split[split.length-1])
+    }
+    dialog.showErrorBox("Class ID列表（可滚动）",info.join("\n\n"))
+});
+
